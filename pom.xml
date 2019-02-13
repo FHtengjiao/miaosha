@@ -84,6 +84,7 @@
                     <!--允许移动生成的文件-->
                     <verbose>true</verbose>
                     <!--允许自动覆盖文件-->
+                    <!--实际项目开发中不要将此属性设置为true，会造成他人的数据被覆盖-->
                     <overwrite>true</overwrite>
                     <configurationFile>src/main/resources/mybatis-generator.xml</configurationFile>
                 </configuration>
