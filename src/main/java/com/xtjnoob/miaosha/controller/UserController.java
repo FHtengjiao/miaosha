@@ -1,7 +1,9 @@
 package com.xtjnoob.miaosha.controller;
 
+import com.xtjnoob.miaosha.controller.viewobject.UserVO;
 import com.xtjnoob.miaosha.service.UserService;
 import com.xtjnoob.miaosha.service.model.UserModel;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +24,18 @@ public class UserController {
 
     @RequestMapping("/get")
     @ResponseBody
-    public UserModel getUser(@RequestParam(name="id") Integer id) {
+    public UserVO getUser(@RequestParam(name="id") Integer id) {
         //调用service服务，获取对应id的用户对象，并返回给前端
-        return userService.getUserById(id);
+        UserModel userModel = userService.getUserById(id);
+        return convertFromModel(userModel);
+    }
+
+    private UserVO convertFromModel(UserModel userModel) {
+        if (userModel == null) {
+            return null;
+        }
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(userModel, userVO);
+        return userVO;
     }
 }
