@@ -8,13 +8,14 @@ import com.xtjnoob.miaosha.service.UserService;
 import com.xtjnoob.miaosha.service.model.UserModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Random;
 
 /**
  * @Author: xtjnoob
@@ -23,10 +24,35 @@ import java.util.Map;
  */
 @Controller("user")
 @RequestMapping("/user")
-public class UserController {
+public class UserController extends BaseController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private HttpServletRequest request;
+
+    @RequestMapping("/getotp")
+    @ResponseBody
+    // 用户获取opt短信接口
+    public CommonReturnType getOtp(@RequestParam(name="telephone") String telephone) throws BusinessExcption {
+
+        if (StringUtils.isEmpty(telephone)) {
+            throw new BusinessExcption(EnumBusinessError.PARAMETER_VALIDATION_ERROE, "手机号码不能为空");
+        }
+
+        // 生成optCode
+        Random random = new Random();
+        int optCode = random.nextInt(899999) + 100000;
+
+        // 关联用户手机号
+        request.getSession().setAttribute(telephone, optCode);
+
+        System.out.println("telephone: " + telephone + " & optCode = " + optCode);
+
+        return CommonReturnType.create(null);
+
+    }
 
     @RequestMapping("/get")
     @ResponseBody
@@ -42,6 +68,13 @@ public class UserController {
         return CommonReturnType.create(userVO);
     }
 
+    /**
+     * @Description: 返回前端需要的数据模型
+     * create by: xtjnoob
+     * create time: 13:51 2019/2/19
+     * * @param UserModel userModel
+     * @return UserVO
+     */
     private UserVO convertFromModel(UserModel userModel) {
         if (userModel == null) {
             return null;
@@ -49,22 +82,5 @@ public class UserController {
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(userModel, userVO);
         return userVO;
-    }
-
-    // 定义exceptionhandler，来处理未被controller层处理的异常
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public Object handlerException(HttpServletRequest request, Exception ex) {
-        BusinessExcption businessExcption = (BusinessExcption) ex;
-        CommonReturnType commonReturnType = new CommonReturnType();
-        commonReturnType.setStatus("fail");
-
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("errCode", businessExcption.getErrCode());
-        responseData.put("errMsg", businessExcption.getErrMsg());
-
-        commonReturnType.setData(responseData);
-        return commonReturnType;
     }
 }

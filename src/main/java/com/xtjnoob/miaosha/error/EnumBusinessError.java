@@ -12,6 +12,9 @@ public enum EnumBusinessError implements CommonError {
 
     // 通用错误码
     PARAMETER_VALIDATION_ERROE(10001, "非法参数"),
+
+    // 未知错误
+    UNKNOW_ERROR(30001,"未知错误")
     ;
 
     EnumBusinessError(int errCode, String errMsg) {
