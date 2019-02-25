@@ -10,9 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Random;
@@ -32,9 +30,10 @@ public class UserController extends BaseController {
     @Autowired
     private HttpServletRequest request;
 
-    @RequestMapping("/getotp")
-    @ResponseBody
     // 用户获取opt短信接口
+    @RequestMapping(value = "/getotp",method = {RequestMethod.POST}, consumes = {CONTENT_TYPE_FORMED})
+    @ResponseBody
+    @CrossOrigin
     public CommonReturnType getOtp(@RequestParam(name="telephone") String telephone) throws BusinessExcption {
 
         if (StringUtils.isEmpty(telephone)) {
@@ -43,17 +42,18 @@ public class UserController extends BaseController {
 
         // 生成optCode
         Random random = new Random();
-        int optCode = random.nextInt(899999) + 100000;
+        int otpCode = random.nextInt(899999) + 100000;
 
         // 关联用户手机号
-        request.getSession().setAttribute(telephone, optCode);
+        request.getSession().setAttribute(telephone, otpCode);
 
-        System.out.println("telephone: " + telephone + " & optCode = " + optCode);
+        System.out.println("telephone: " + telephone + " & otpCode = " + otpCode);
 
         return CommonReturnType.create(null);
 
     }
 
+    // 获取用户
     @RequestMapping("/get")
     @ResponseBody
     public CommonReturnType getUser(@RequestParam(name="id") Integer id) throws BusinessExcption {
